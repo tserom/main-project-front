@@ -1,0 +1,66 @@
+.main-layout {
+  min-height: 100vh;
+}
+
+/* 写在 .main-layout 下，优先级高于单独的 .ant-layout-header，且需在 antd.css 之后引入 */
+.main-layout .main-layout__header.ant-layout-header {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 48px;
+  line-height: 48px;
+}
+
+.main-layout__brand {
+  flex-shrink: 0;
+  margin-right: 24px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.main-layout__top-menu {
+  flex: 1;
+  border-bottom: none;
+  line-height: 48px;
+}
+
+.main-layout__top-label {
+  margin-left: 6px;
+}
+
+.main-layout__sider {
+  border-right: 1px solid #f0f0f0;
+}
+
+.main-layout__inner {
+  background: #f5f5f5;
+}
+
+.main-layout__content {
+  margin: 16px;
+  padding: 0 16px 16px;
+  background: #fff;
+  border-radius: 8px;
+  min-height: calc(100vh - 48px - 32px);
+}
+
+.main-layout__content .ant-tabs-nav {
+  margin-bottom: 0;
+}
+
+.main-layout__page {
+  padding: 24px 0;
+}
+
+.main-layout__page-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.main-layout__page-hint {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+}
