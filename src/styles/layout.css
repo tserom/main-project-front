@@ -2,18 +2,55 @@
   min-height: 100vh;
 }
 
-/* 写在 .main-layout 下，优先级高于单独的 .ant-layout-header，且需在 antd.css 之后引入 */
-.main-layout .main-layout__header.ant-layout-header {
+.main-layout--full {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-layout--full > .ant-layout {
+  flex: 1;
+  min-height: 0;
+}
+
+.main-layout__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.main-layout__body > .ant-layout-sider {
+  flex-shrink: 0;
+}
+
+.main-layout__body > .ant-layout {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 顶栏：隐藏款 — 默认不展开横向菜单 */
+.main-layout .main-layout__header.ant-layout-header.main-layout__header--shell {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 12px 0 8px;
   height: 48px;
   line-height: 48px;
+  flex-shrink: 0;
+}
+
+.main-layout__nav-toggle {
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-right: 8px;
+}
+
+.main-layout__header-placeholder {
+  flex: 1;
 }
 
 .main-layout__brand {
   flex-shrink: 0;
-  margin-right: 24px;
+  margin-right: 16px;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -23,10 +60,41 @@
   flex: 1;
   border-bottom: none;
   line-height: 48px;
+  min-width: 0;
 }
 
 .main-layout__top-label {
   margin-left: 6px;
+}
+
+/* 侧栏：默认收起；底部按钮展开/收起 */
+.main-layout__sider.ant-layout-sider {
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-layout__sider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.main-layout__sider .ant-menu-root {
+  flex: 1;
+  border-right: none;
+  overflow: auto;
+}
+
+.main-layout__sider-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #f0f0f0;
+  padding: 4px 0;
+}
+
+.main-layout__sider-trigger-btn {
+  color: rgba(0, 0, 0, 0.65) !important;
 }
 
 .main-layout__sider {
@@ -35,6 +103,9 @@
 
 .main-layout__inner {
   background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .main-layout__content {
@@ -42,15 +113,39 @@
   padding: 0 16px 16px;
   background: #fff;
   border-radius: 8px;
-  min-height: calc(100vh - 48px - 32px);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .main-layout__content .ant-tabs-nav {
   margin-bottom: 0;
 }
 
+.main-layout__micro-tabs.ant-tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.main-layout__micro-tabs .ant-tabs-content-holder {
+  flex: 1;
+  min-height: 0;
+}
+
+.main-layout__micro-tabs .ant-tabs-content {
+  height: 100%;
+}
+
+.main-layout__micro-tabs .ant-tabs-tabpane {
+  height: 100%;
+}
+
 .main-layout__page {
-  padding: 24px 0;
+  padding: 16px 0 0;
+  box-sizing: border-box;
 }
 
 .main-layout__page-title {
@@ -63,4 +158,47 @@
   margin: 0;
   color: rgba(0, 0, 0, 0.45);
   font-size: 14px;
+}
+
+.main-layout__page--wujie {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 0;
+  height: 100%;
+}
+
+/* 子应用容器：给 iframe 明确高度（无界内部 div 依赖 height:100%） */
+.main-layout__wujie-host {
+  flex: 1;
+  min-height: 360px;
+  height: calc(100vh - 48px - 56px - 72px);
+  margin-top: 4px;
+}
+
+.main-layout__wujie-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.main-layout__content--micro {
+  min-height: 0;
+}
+
+.main-layout__nav-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-layout__micro-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
