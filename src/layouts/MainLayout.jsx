@@ -13,7 +13,7 @@ import { parseMicroPath, buildMicroPath } from '../utils/microHash';
 import { normalizeRoutePath } from '../utils/pathUtils';
 import { sideMenuItemKey, parseSideMenuKey, findAppByRoutePrefix } from '../micro/pageTabModel';
 import { useMicroPageTabs } from '../micro/useMicroPageTabs';
-import SubAppView from './SubAppView';
+import SubAppView from '../components/SubAppView';
 
 const { Header, Sider, Content } = Layout;
 const { bus } = WujieReact;
@@ -46,7 +46,11 @@ const MainLayout = () => {
     return findAppByRoutePrefix(nav, routePrefix);
   }, [nav, routePrefix]);
 
-  /** 根路径由接口 apps 顺序决定落地页，不写死某个子应用 key */
+  /**
+   * 根路径落地策略：
+   * - 不写死某个子应用 key
+   * - 由接口 apps 顺序决定默认落地页
+   */
   useLayoutEffect(() => {
     if (!nav?.apps?.length) return;
     if (routePrefix === null && (location.pathname === '/' || location.pathname === '')) {
@@ -55,7 +59,7 @@ const MainLayout = () => {
   }, [nav, routePrefix, location.pathname, navigate]);
 
   const topKey = activeApp?.key;
-  const sideItems = activeApp?.routes ?? [];
+  const sideItems = useMemo(() => activeApp?.routes ?? [], [activeApp]);
 
   const selectedSideMenuKey = useMemo(() => {
     if (!activeApp) return null;
@@ -262,3 +266,4 @@ const MainLayout = () => {
 };
 
 export default MainLayout;
+

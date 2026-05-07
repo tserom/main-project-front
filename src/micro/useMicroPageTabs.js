@@ -10,7 +10,6 @@ import { buildMicroPath } from '../utils/microHash';
 import { normalizeRoutePath } from '../utils/pathUtils';
 import {
   pathsEqual,
-  makePageTabId,
   buildPageTab,
   findAppByMicroKey,
   labelForSubPath,
@@ -26,8 +25,14 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
   const [activeTabId, setActiveTabId] = useState(null);
   const activeTabIdRef = useRef(null);
   const pathnameRef = useRef(pathname);
-  activeTabIdRef.current = activeTabId;
-  pathnameRef.current = pathname;
+
+  useEffect(() => {
+    activeTabIdRef.current = activeTabId;
+  }, [activeTabId]);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useLayoutEffect(() => {
     if (!nav) return;

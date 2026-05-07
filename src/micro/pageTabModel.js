@@ -1,4 +1,4 @@
-import { parseMicroPath, buildMicroPath } from '../utils/microHash';
+import { parseMicroPath } from '../utils/microHash';
 import { normalizeRoutePath } from '../utils/pathUtils';
 
 /** 主路由路径比较（与导航、页签里存的 fullPath 对齐） */
