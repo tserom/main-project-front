@@ -1,45 +1,39 @@
 /**
  * Hash 路由（pathname 不含 #）：
- *   /hello              → hello-front（microTab welcome），子路径 /
- *   /hello/about        → welcome，/about
- *   /user               → user-front，/
- *   /user/login         → user，/login
+ * 第一段路径由接口下发的 apps[].key 决定，例如 /hello、/user，父应用不写死默认子应用。
  *
- * 兼容旧链：/welcome → 与 /hello 相同
+ *   /{appKey}              → routePrefix = appKey，子路径 /
+ *   /{appKey}/about        → 子路径 /about
+ *   /                      → routePrefix 为 null（由 MainLayout 按接口首项重定向）
  */
 
+/**
+ * @returns {{ routePrefix: string | null, subPath: string }}
+ */
 export function parseMicroPath(pathname) {
   const clean = pathname && pathname !== '/' ? pathname : '/';
   const parts = clean.split('/').filter(Boolean);
-
-  if (parts[0] === 'user') {
-    const rest = parts.slice(1);
-    return {
-      microTab: 'user',
-      subPath: rest.length ? `/${rest.join('/')}` : '/',
-    };
+  if (parts.length === 0) {
+    return { routePrefix: null, subPath: '/' };
   }
-
-  if (parts[0] === 'hello' || parts[0] === 'welcome') {
-    const rest = parts.slice(1);
-    return {
-      microTab: 'welcome',
-      subPath: rest.length ? `/${rest.join('/')}` : '/',
-    };
-  }
-
-  return { microTab: 'welcome', subPath: '/' };
+  const routePrefix = parts[0];
+  const rest = parts.slice(1);
+  return {
+    routePrefix,
+    subPath: rest.length ? `/${rest.join('/')}` : '/',
+  };
 }
 
 /**
- * @param {string} microTab — welcome | user
- * @param {string} subPath — 子应用内路径，如 /login
+ * @param {string} routePrefix 与 apps[].key 一致
+ * @param {string} subPath 子应用内路径
+ * @returns {string | null} routePrefix 为空时返回 null
  */
-export function buildMicroPath(microTab, subPath) {
-  const prefix = microTab === 'user' ? 'user' : 'hello';
+export function buildMicroPath(routePrefix, subPath) {
+  if (!routePrefix) return null;
   if (!subPath || subPath === '/') {
-    return `/${prefix}`;
+    return `/${routePrefix}`;
   }
   const p = subPath.startsWith('/') ? subPath : `/${subPath}`;
-  return `/${prefix}${p}`;
+  return `/${routePrefix}${p}`;
 }

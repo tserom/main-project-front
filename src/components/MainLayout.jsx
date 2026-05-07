@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Menu, ConfigProvider, Button, Tooltip, Spin, Tabs } from 'antd';
+import { Layout, Menu, ConfigProvider, Button, Tooltip, Spin, Tabs, Result } from 'antd';
 import zhCN from 'antd/es/locale/zh_CN';
 import WujieReact from 'wujie-react';
 import {
@@ -11,7 +11,7 @@ import {
 import { fetchNavigation } from '../api/navigation';
 import { parseMicroPath, buildMicroPath } from '../utils/microHash';
 import { normalizeRoutePath } from '../utils/pathUtils';
-import { sideMenuItemKey, parseSideMenuKey } from '../micro/pageTabModel';
+import { sideMenuItemKey, parseSideMenuKey, findAppByRoutePrefix } from '../micro/pageTabModel';
 import { useMicroPageTabs } from '../micro/useMicroPageTabs';
 import SubAppView from './SubAppView';
 
@@ -36,17 +36,25 @@ const MainLayout = () => {
     };
   }, []);
 
-  const { microTab, subPath } = useMemo(
+  const { routePrefix, subPath } = useMemo(
     () => parseMicroPath(location.pathname),
     [location.pathname],
   );
 
   const activeApp = useMemo(() => {
-    if (!nav?.apps?.length) return null;
-    return nav.apps.find((a) => a.microAppKey === microTab) ?? nav.apps[0];
-  }, [nav, microTab]);
+    if (!routePrefix || !nav?.apps?.length) return null;
+    return findAppByRoutePrefix(nav, routePrefix);
+  }, [nav, routePrefix]);
 
-  const topKey = activeApp?.key ?? 'hello';
+  /** 根路径由接口 apps 顺序决定落地页，不写死某个子应用 key */
+  useLayoutEffect(() => {
+    if (!nav?.apps?.length) return;
+    if (routePrefix === null && (location.pathname === '/' || location.pathname === '')) {
+      navigate(`/${nav.apps[0].key}`, { replace: true });
+    }
+  }, [nav, routePrefix, location.pathname, navigate]);
+
+  const topKey = activeApp?.key;
   const sideItems = activeApp?.routes ?? [];
 
   const selectedSideMenuKey = useMemo(() => {
@@ -69,7 +77,8 @@ const MainLayout = () => {
   const navigateApp = useCallback(
     (app, route) => {
       if (!app || !route) return;
-      navigate(buildMicroPath(app.microAppKey, route.path));
+      const path = buildMicroPath(app.key, route.path);
+      if (path) navigate(path);
     },
     [navigate],
   );
@@ -119,10 +128,12 @@ const MainLayout = () => {
 
   const sideMenuItems = useMemo(
     () =>
-      sideItems.map((r) => ({
-        key: sideMenuItemKey(activeApp.key, r.key),
-        label: r.label,
-      })),
+      activeApp
+        ? sideItems.map((r) => ({
+            key: sideMenuItemKey(activeApp.key, r.key),
+            label: r.label,
+          }))
+        : [],
     [sideItems, activeApp],
   );
 
@@ -130,6 +141,14 @@ const MainLayout = () => {
     return (
       <div className="main-layout__nav-loading">
         <Spin size="large" tip="加载导航配置…" />
+      </div>
+    );
+  }
+
+  if (!nav.apps?.length) {
+    return (
+      <div className="main-layout__nav-loading">
+        <Result status="warning" title="暂无子应用配置" subTitle="请检查接口返回的 apps 列表。" />
       </div>
     );
   }
@@ -151,7 +170,7 @@ const MainLayout = () => {
             <Menu
               theme="dark"
               mode="horizontal"
-              selectedKeys={[topKey]}
+              selectedKeys={topKey ? [topKey] : []}
               items={topMenuItems}
               onClick={onTopClick}
               className="main-layout__top-menu"
@@ -192,36 +211,47 @@ const MainLayout = () => {
           <Layout className="main-layout__inner">
             <Content className="main-layout__content main-layout__content--micro">
               <div className="main-layout__micro-panel">
-                <p className="main-layout__page-title">
-                  {activeTab?.label ??
-                    `${activeApp?.title ?? '子应用'}${
-                      currentSideLabel ? ` · ${currentSideLabel}` : ''
-                    }`}
-                </p>
-                <Tabs
-                  className="main-layout__micro-tabs"
-                  type="editable-card"
-                  hideAdd
-                  destroyInactiveTabPane={false}
-                  activeKey={activeKey}
-                  onChange={onTabChange}
-                  onEdit={onTabEdit}
-                  items={pageTabs.map((tab) => ({
-                    key: tab.id,
-                    label: tab.label,
-                    closable: pageTabs.length > 1,
-                    children: (
-                      <div className="main-layout__page main-layout__page--wujie">
-                        <SubAppView
-                          tabKey={tab.microAppKey}
-                          subPath={tab.subPath}
-                          instanceId={tab.id}
-                          active={activeKey === tab.id}
-                        />
-                      </div>
-                    ),
-                  }))}
-                />
+                {pageTabs.length === 0 ? (
+                  <div className="main-layout__wujie-loading">
+                    <Spin size="large" tip="正在进入应用…" />
+                  </div>
+                ) : (
+                  <>
+                    <p className="main-layout__page-title">
+                      {activeTab?.label ??
+                        `${activeApp?.title ?? ''}${
+                          currentSideLabel ? ` · ${currentSideLabel}` : ''
+                        }`}
+                    </p>
+                    <Tabs
+                      className="main-layout__micro-tabs"
+                      type="editable-card"
+                      hideAdd
+                      destroyInactiveTabPane={false}
+                      activeKey={activeKey}
+                      onChange={onTabChange}
+                      onEdit={onTabEdit}
+                      items={pageTabs.map((tab) => ({
+                        key: tab.id,
+                        label: tab.label,
+                        closable: pageTabs.length > 1,
+                        children: (
+                          <div className="main-layout__page main-layout__page--wujie">
+                            <SubAppView
+                              microAppKey={tab.microAppKey}
+                              entryUrl={tab.entryUrl}
+                              subPath={tab.subPath}
+                              instanceId={tab.id}
+                              active={activeKey === tab.id}
+                              invalid={tab.invalid}
+                              subAppBusName={tab.subAppBusName}
+                            />
+                          </div>
+                        ),
+                      }))}
+                    />
+                  </>
+                )}
               </div>
             </Content>
           </Layout>

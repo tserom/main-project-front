@@ -18,12 +18,8 @@ import {
 } from './pageTabModel';
 
 /**
- * 微前端主应用：Hash 地址栏 ↔ 多页签 ↔ 多个无界实例（按页签 id 隔离）。
- *
- * 数据流概要：
- * 1. 用户点侧栏 → react-router 改 pathname → 此处为「新 URL」补页签或切到已有同路径页签。
- * 2. user-front 内部路由变 → 子应用 bus.emit('sub-route-change', …) → 这里更新对应 instanceId 的页签并 replace 导航。
- * 3. 每个页签渲染一个 SubAppView，wujie name = f(microAppKey, tabId)；仅 active 的页签向子应用发 bus。
+ * 微前端主应用：Hash ↔ 多页签 ↔ 多无界实例（实例 id = 页签 id）。
+ * 子应用内路由同步：仅当接口为该 app 配置了 subAppBusName 时，监听 sub-route-change。
  */
 export function useMicroPageTabs(nav, pathname, navigate, bus) {
   const [pageTabs, setPageTabs] = useState([]);
@@ -36,12 +32,16 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
   useLayoutEffect(() => {
     if (!nav) return;
     setPageTabs((prev) => {
+      const built = buildPageTab(nav, pathname);
+      if (!built) {
+        return prev;
+      }
       if (prev.length === 0) {
-        return [buildPageTab(nav, pathname)];
+        return [built];
       }
       const hit = prev.find((t) => pathsEqual(t.fullPath, pathname));
       if (hit) return prev;
-      return [...prev, buildPageTab(nav, pathname)];
+      return [...prev, built];
     });
   }, [pathname, nav]);
 
@@ -56,44 +56,41 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
   useEffect(() => {
     if (!nav) return;
     const onSubRoute = (subAppName, second) => {
-      const parsed = parseSubRoutePayload(subAppName, second);
+      const parsed = parseSubRoutePayload(subAppName, second, nav);
       if (!parsed) return;
-      const { path: pathStr, instanceId } = parsed;
+      const { path: pathStr, instanceId, routePrefix, microAppKey } = parsed;
       const subPathNorm = normalizeRoutePath(pathStr);
-      const nextFull = buildMicroPath('user', subPathNorm);
+      const nextFull = buildMicroPath(routePrefix, subPathNorm);
+      if (!nextFull) return;
 
       setPageTabs((prev) => {
         const idx = instanceId
           ? prev.findIndex((t) => t.id === instanceId)
           : prev.findIndex((t) => t.id === activeTabIdRef.current);
-        const microTab = 'user';
-        const routeLabel = labelForSubPath(nav, microTab, subPathNorm);
-        const app = findAppByMicroKey(nav, microTab);
+        const routeLabel = labelForSubPath(nav, microAppKey, subPathNorm);
+        const app = findAppByMicroKey(nav, microAppKey);
         const titlePart = app?.title ?? '';
         const label = routeLabel ? `${titlePart} · ${routeLabel}` : titlePart;
         const nextLabel = label || '页面';
 
         if (idx >= 0) {
           const copy = [...prev];
+          const app = findAppByMicroKey(nav, microAppKey);
           copy[idx] = {
             ...copy[idx],
             fullPath: nextFull,
             subPath: subPathNorm,
-            microAppKey: microTab,
+            microAppKey,
+            routePrefix,
             label: nextLabel,
+            entryUrl: app?.entryUrl ?? copy[idx].entryUrl,
+            subAppBusName: app?.subAppBusName ?? copy[idx].subAppBusName,
+            invalid: !app?.entryUrl,
           };
           return copy;
         }
-        return [
-          ...prev,
-          {
-            id: makePageTabId(),
-            fullPath: nextFull,
-            subPath: subPathNorm,
-            microAppKey: microTab,
-            label: nextLabel,
-          },
-        ];
+        const built = buildPageTab(nav, nextFull);
+        return built ? [...prev, built] : prev;
       });
 
       if (!pathsEqual(pathnameRef.current, nextFull)) {
@@ -124,16 +121,22 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
 
   const onTabEdit = useCallback(
     (targetKey, action) => {
-      if (action !== 'remove' || !nav) return;
+      if (action !== 'remove' || !nav?.apps?.length) return;
+      const first = nav.apps[0];
+      const fallbackPath = buildMicroPath(first.key, '/');
       setPageTabs((prev) => {
         const idx = prev.findIndex((t) => t.id === targetKey);
         if (idx === -1) return prev;
         const next = prev.filter((t) => t.id !== targetKey);
-        if (next.length === 0) {
-          const t = buildPageTab(nav, '/hello');
-          setActiveTabId(t.id);
-          navigate('/hello', { replace: true });
-          return [t];
+        if (next.length === 0 && fallbackPath) {
+          const t = buildPageTab(nav, fallbackPath);
+          if (t) {
+            setActiveTabId(t.id);
+            navigate(fallbackPath, { replace: true });
+            return [t];
+          }
+          navigate('/404', { replace: true });
+          return [];
         }
         if (targetKey === activeTabIdRef.current) {
           const neighbor = idx === 0 ? next[0] : next[idx - 1];
