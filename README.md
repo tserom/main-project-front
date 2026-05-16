@@ -11,19 +11,19 @@ pnpm install
 pnpm dev
 ```
 
-- 开发服务器默认：**http://127.0.0.1:8000**
+- 开发服务器默认：**http://127.0.0.1:8100**（端口名单见 [`docs/WORKSPACE.md`](../../docs/WORKSPACE.md#端口名单唯一信息源)）
 - 包管理器与 Node 版本见 `package.json` 的 `engines` / `packageManager`。
 
 ## 与子应用联调
 
-本地子应用 URL 在 **`.env.development`**（勿提交密钥；仅开发用变量）：
+本地子应用 URL 在 **`.env.development`**（仅多端口 `pnpm dev` 模式生效；同源/Docker 模式由 build args 注入相对路径）：
 
-| 变量 | 默认 | 含义 |
-|------|------|------|
-| `VITE_HELLO_FRONT_URL` | `http://localhost:8100/` | 试验子应用入口 |
-| `VITE_USER_FRONT_URL` | `http://localhost:8101/` | 用户中心子应用入口 |
+| 变量 | 默认（dev） | 含义 |
+|------|------------|------|
+| `VITE_HELLO_FRONT_URL` | `http://localhost:8101/` | hello-front 子应用入口 |
+| `VITE_USER_FRONT_URL` | `http://localhost:8102/` | user-front 子应用入口 |
 
-修改端口后需同步修改上述变量并重启 `pnpm dev`。
+修改端口先改 [`docs/WORKSPACE.md`](../../docs/WORKSPACE.md#端口名单唯一信息源) 端口名单，再同步本变量与子应用配置。
 
 ## 无界相关代码
 
