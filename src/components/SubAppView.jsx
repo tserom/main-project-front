@@ -10,6 +10,7 @@ import {
   WUJIE_PARENT_PAGE_EVENT,
   USER_FRONT_ROUTE_EVENT,
 } from '../config/wujie';
+import { logger } from '../lib/logger.js';
 import MicroNotFound from './MicroNotFound';
 
 function normalizeSubPath(p) {
@@ -92,7 +93,7 @@ function SubAppView({
           }
         }}
         loadError={(src, err) => {
-          window.console.error('[wujie] loadError', src, err);
+          logger.error('wujie loadError', err, { src });
           setLoadFailed(true);
         }}
       />
