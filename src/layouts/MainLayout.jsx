@@ -23,14 +23,23 @@ const MainLayout = () => {
   const navigate = useNavigate();
 
   const [nav, setNav] = useState(null);
+  const [navError, setNavError] = useState(null);
   const [topNavVisible, setTopNavVisible] = useState(false);
   const [siderCollapsed, setSiderCollapsed] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    fetchNavigation().then((data) => {
-      if (!cancelled) setNav(data);
-    });
+    setNavError(null);
+    fetchNavigation()
+      .then((data) => {
+        if (!cancelled) setNav(data);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setNav(null);
+          setNavError(err instanceof Error ? err.message : '加载导航配置失败');
+        }
+      });
     return () => {
       cancelled = true;
     };
@@ -140,6 +149,18 @@ const MainLayout = () => {
         : [],
     [sideItems, activeApp],
   );
+
+  if (navError) {
+    return (
+      <div className="main-layout__nav-loading">
+        <Result
+          status="error"
+          title="导航配置加载失败"
+          subTitle={navError}
+        />
+      </div>
+    );
+  }
 
   if (!nav) {
     return (
