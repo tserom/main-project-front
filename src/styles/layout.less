@@ -1,5 +1,6 @@
 .main-layout {
   min-height: 100vh;
+  background: var(--host-bg);
 }
 
 .main-layout--full {
@@ -29,49 +30,112 @@
   min-height: 0;
 }
 
-/* 顶栏：隐藏款 — 默认不展开横向菜单 */
+/* 顶栏 */
 .main-layout .main-layout__header.ant-layout-header.main-layout__header--shell {
   display: flex;
   align-items: center;
-  padding: 0 12px 0 8px;
-  height: 48px;
-  line-height: 48px;
+  padding: 0 20px 0 12px;
+  height: 56px;
+  line-height: 56px;
   flex-shrink: 0;
+  background: linear-gradient(120deg, var(--host-header) 0%, #1f3344 55%, #1a3d42 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.18);
+}
+
+.main-layout__header-start {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: 12px;
 }
 
 .main-layout__nav-toggle {
-  color: rgba(255, 255, 255, 0.85) !important;
-  margin-right: 8px;
+  color: rgba(255, 255, 255, 0.88) !important;
+  margin-right: 4px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
 .main-layout__header-placeholder {
   flex: 1;
 }
 
-.main-layout__brand {
+.main-layout__header-end {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
-  margin-right: 16px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+.main-layout__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.main-layout__brand-mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--host-header-accent), #5eead4);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.25);
+}
+
+.main-layout__brand-text {
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .main-layout__top-menu {
   flex: 1;
-  border-bottom: none;
-  line-height: 48px;
+  border-bottom: none !important;
+  line-height: 56px;
   min-width: 0;
+  background: transparent !important;
+
+  .ant-menu-item {
+    border-radius: 8px;
+    margin: 0 4px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .ant-menu-item-selected {
+    background: rgba(13, 148, 136, 0.22) !important;
+    color: #ecfdf5 !important;
+  }
+
+  .ant-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+.main-layout__top-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .main-layout__top-label {
-  margin-left: 6px;
+  font-weight: 500;
 }
 
-/* 侧栏：默认收起；底部按钮展开/收起 */
+/* 侧栏 */
 .main-layout__sider.ant-layout-sider {
   display: flex !important;
   flex-direction: column;
   overflow: hidden;
+  background: var(--host-surface) !important;
+  border-right: 1px solid var(--host-border);
+  box-shadow: 2px 0 16px rgba(15, 23, 42, 0.04);
 }
 
 .main-layout__sider .ant-layout-sider-children {
@@ -81,46 +145,108 @@
   min-height: 0;
 }
 
-.main-layout__sider .ant-menu-root {
+.main-layout__sider-head {
+  flex-shrink: 0;
+  padding: 14px 16px 8px;
+  min-height: 24px;
+}
+
+.main-layout__sider-app {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--host-muted);
+}
+
+.main-layout__side-menu.ant-menu {
   flex: 1;
-  border-right: none;
+  border-right: none !important;
   overflow: auto;
+  padding: 4px 8px;
+  background: transparent !important;
+
+  .ant-menu-item {
+    border-radius: 8px;
+    margin: 2px 0;
+    height: 40px;
+    line-height: 40px;
+  }
+
+  .ant-menu-item-selected {
+    background: rgba(13, 148, 136, 0.12) !important;
+    color: #0f766e !important;
+    font-weight: 600;
+  }
+
+  .ant-menu-item::after {
+    display: none;
+  }
 }
 
 .main-layout__sider-footer {
   flex-shrink: 0;
-  border-top: 1px solid #f0f0f0;
-  padding: 4px 0;
+  border-top: 1px solid var(--host-border);
+  padding: 6px 8px;
 }
 
 .main-layout__sider-trigger-btn {
-  color: rgba(0, 0, 0, 0.65) !important;
+  color: var(--host-muted) !important;
+  border-radius: 8px;
+
+  &:hover {
+    color: var(--host-text) !important;
+    background: rgba(15, 23, 42, 0.05) !important;
+  }
 }
 
-.main-layout__sider {
-  border-right: 1px solid #f0f0f0;
-}
-
+/* 主内容区 */
 .main-layout__inner {
-  background: #f5f5f5;
+  background: var(--host-bg);
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
 .main-layout__content {
-  margin: 16px;
-  padding: 0 16px 16px;
-  background: #fff;
-  border-radius: 8px;
+  margin: 16px 16px 16px 12px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
 }
 
-.main-layout__content .ant-tabs-nav {
-  margin-bottom: 0;
+.main-layout__content--micro {
+  min-height: 0;
+}
+
+.main-layout__nav-alert {
+  margin-bottom: 12px;
+  border-radius: var(--host-radius);
+  border: 1px solid #fde68a;
+}
+
+.main-layout__micro-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  background: var(--host-surface);
+  border: 1px solid var(--host-border);
+  border-radius: var(--host-radius);
+  box-shadow: var(--host-shadow);
+  padding: 16px 18px 12px;
+}
+
+.main-layout__micro-panel--welcome {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 .main-layout__micro-tabs.ant-tabs {
@@ -128,6 +254,24 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+
+  > .ant-tabs-nav {
+    margin-bottom: 8px;
+
+    &::before {
+      border-color: var(--host-border);
+    }
+  }
+
+  .ant-tabs-tab {
+    border-radius: 8px 8px 0 0;
+    transition: color 0.2s ease;
+  }
+
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #0f766e;
+    font-weight: 600;
+  }
 }
 
 .main-layout__micro-tabs .ant-tabs-content-holder {
@@ -144,20 +288,7 @@
 }
 
 .main-layout__page {
-  padding: 16px 0 0;
   box-sizing: border-box;
-}
-
-.main-layout__page-title {
-  margin: 0 0 8px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.main-layout__page-hint {
-  margin: 0;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 14px;
 }
 
 .main-layout__page--wujie {
@@ -165,50 +296,95 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding-bottom: 0;
   height: 100%;
 }
 
-/* 子应用容器：给 iframe 明确高度（无界内部 div 依赖 height:100%） */
 .main-layout__wujie-host {
   flex: 1;
-  min-height: 360px;
-  height: calc(100vh - 48px - 56px - 72px);
-  margin-top: 4px;
-}
-
-.main-layout__wujie-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 240px;
-}
-
-.main-layout__content--micro {
-  min-height: 0;
-}
-
-.main-layout__nav-loading {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.main-layout__micro-panel {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  min-height: 320px;
   height: 100%;
+  margin-top: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--host-border);
+  background: #f8fafc;
+}
+
+.main-layout__wujie-loading,
+.main-layout__nav-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--host-bg);
 }
 
 .main-layout__micro-not-found {
   flex: 1;
-  min-height: 320px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed var(--host-border);
 }
 
+/* 顶栏用户菜单 */
+.host-user-menu--guest {
+  display: flex;
+  align-items: center;
+}
+
+.host-user-menu__login-btn {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 500;
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 12px !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+  }
+}
+
+.host-user-menu--auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.host-user-menu__avatar {
+  background: linear-gradient(135deg, #0d9488, #14b8a6) !important;
+  color: #fff !important;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.host-user-menu__name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.host-user-menu__caret {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+}

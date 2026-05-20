@@ -25,6 +25,11 @@ pnpm dev
 
 修改端口先改 [`docs/WORKSPACE.md`](../../docs/WORKSPACE.md#端口名单唯一信息源) 端口名单，再同步本变量与子应用配置。
 
+## 壳层首页与用户菜单
+
+- 根路径 `/` 展示内置欢迎页（`src/pages/WelcomeHome.jsx`），介绍中台并列出子应用入口。
+- 顶栏右侧 `HostUserMenu`：登录 / 个人中心 / 退出；与 `user-front` 共用 `localStorage` 键 `user-front:access-token`。
+
 ## 无界相关代码
 
 - `src/config/wujie.js` — 实例命名等

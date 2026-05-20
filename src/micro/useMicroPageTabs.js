@@ -126,21 +126,14 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
 
   const onTabEdit = useCallback(
     (targetKey, action) => {
-      if (action !== 'remove' || !nav?.apps?.length) return;
-      const first = nav.apps[0];
-      const fallbackPath = buildMicroPath(first.key, '/');
+      if (action !== 'remove') return;
       setPageTabs((prev) => {
         const idx = prev.findIndex((t) => t.id === targetKey);
         if (idx === -1) return prev;
         const next = prev.filter((t) => t.id !== targetKey);
-        if (next.length === 0 && fallbackPath) {
-          const t = buildPageTab(nav, fallbackPath);
-          if (t) {
-            setActiveTabId(t.id);
-            navigate(fallbackPath, { replace: true });
-            return [t];
-          }
-          navigate('/404', { replace: true });
+        if (next.length === 0) {
+          setActiveTabId(null);
+          navigate('/', { replace: true });
           return [];
         }
         if (targetKey === activeTabIdRef.current) {
@@ -151,8 +144,13 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
         return next;
       });
     },
-    [nav, navigate],
+    [navigate],
   );
+
+  const clearAllTabs = useCallback(() => {
+    setPageTabs([]);
+    setActiveTabId(null);
+  }, []);
 
   const activeKey = activeTabId ?? pageTabs[0]?.id;
 
@@ -162,5 +160,6 @@ export function useMicroPageTabs(nav, pathname, navigate, bus) {
     activeKey,
     onTabChange,
     onTabEdit,
+    clearAllTabs,
   };
 }
