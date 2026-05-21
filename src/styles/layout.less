@@ -211,6 +211,47 @@
   }
 }
 
+.main-layout__sider-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 8px;
+  padding: 20px 12px;
+  border-radius: 10px;
+  border: 1px dashed rgba(13, 148, 136, 0.22);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(13, 148, 136, 0.08), transparent 70%),
+    rgba(248, 250, 252, 0.9);
+  text-align: center;
+}
+
+.main-layout__sider-empty--collapsed {
+  margin: 8px 6px;
+  padding: 12px 0;
+  border-style: solid;
+  border-color: var(--host-border);
+  background: rgba(248, 250, 252, 0.6);
+}
+
+.main-layout__sider-empty-icon {
+  font-size: 22px;
+  color: rgba(13, 148, 136, 0.55);
+}
+
+.main-layout__sider-empty--collapsed .main-layout__sider-empty-icon {
+  font-size: 18px;
+}
+
+.main-layout__sider-empty-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--host-muted);
+}
+
 /* 主内容区 */
 .main-layout__inner {
   background: var(--host-bg);

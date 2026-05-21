@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Layout, Menu, ConfigProvider, Button, Tooltip, Spin, Tabs, Result, Alert } from 'antd';
+import { Layout, Menu, ConfigProvider, Button, Tooltip, Spin, Tabs, Alert } from 'antd';
 import zhCN from 'antd/es/locale/zh_CN';
 import WujieReact from 'wujie-react';
 import {
@@ -8,8 +8,9 @@ import {
   MenuUnfoldOutlined,
   AppstoreOutlined,
   WarningOutlined,
+  CompassOutlined,
 } from '@ant-design/icons';
-import { fetchNavigation } from '../api/navigation';
+import { loadNavigation } from '../api/navigation';
 import { parseMicroPath, buildMicroPath } from '../utils/microHash';
 import { normalizeRoutePath } from '../utils/pathUtils';
 import { sideMenuItemKey, parseSideMenuKey, findAppByRoutePrefix } from '../micro/pageTabModel';
@@ -41,7 +42,7 @@ const MainLayout = () => {
   useEffect(() => {
     let cancelled = false;
     setNavWarning(null);
-    fetchNavigation().then((data) => {
+    loadNavigation().then((data) => {
       if (cancelled) return;
       const { navWarning: warning, ...payload } = data;
       setNav(payload);
@@ -145,18 +146,13 @@ const MainLayout = () => {
     [sideItems, activeApp],
   );
 
+  const showSider = Boolean(activeApp);
+  const showSideMenu = sideMenuItems.length > 0;
+
   if (!nav) {
     return (
       <div className="main-layout__nav-loading">
         <Spin size="large" tip="加载导航配置…" />
-      </div>
-    );
-  }
-
-  if (!nav.apps?.length) {
-    return (
-      <div className="main-layout__nav-loading">
-        <Result status="warning" title="暂无子应用配置" subTitle="请检查导航接口或环境变量。" />
       </div>
     );
   }
@@ -196,40 +192,57 @@ const MainLayout = () => {
           </div>
         </Header>
         <Layout className="main-layout__body">
-          <Sider
-            width={232}
-            collapsedWidth={72}
-            collapsible
-            collapsed={siderCollapsed}
-            onCollapse={setSiderCollapsed}
-            className="main-layout__sider"
-            theme="light"
-            trigger={null}
-          >
-            <div className="main-layout__sider-head">
-              {!siderCollapsed && activeApp ? (
-                <span className="main-layout__sider-app">{activeApp.title}</span>
-              ) : null}
-            </div>
-            <Menu
-              mode="inline"
-              selectedKeys={selectedSideMenuKey ? [selectedSideMenuKey] : []}
-              items={sideMenuItems}
-              onClick={onSideClick}
-              className="main-layout__side-menu"
-            />
-            <div className="main-layout__sider-footer">
-              <Tooltip title={siderCollapsed ? '展开侧栏' : '收起侧栏'} placement="right">
-                <Button
-                  type="text"
-                  block
-                  className="main-layout__sider-trigger-btn"
-                  icon={siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                  onClick={() => setSiderCollapsed((c) => !c)}
+          {showSider ? (
+            <Sider
+              width={232}
+              collapsedWidth={72}
+              collapsible
+              collapsed={siderCollapsed}
+              onCollapse={setSiderCollapsed}
+              className="main-layout__sider"
+              theme="light"
+              trigger={null}
+            >
+              <div className="main-layout__sider-head">
+                {!siderCollapsed && activeApp ? (
+                  <span className="main-layout__sider-app">{activeApp.title}</span>
+                ) : null}
+              </div>
+              {showSideMenu ? (
+                <Menu
+                  mode="inline"
+                  selectedKeys={selectedSideMenuKey ? [selectedSideMenuKey] : []}
+                  items={sideMenuItems}
+                  onClick={onSideClick}
+                  className="main-layout__side-menu"
                 />
-              </Tooltip>
-            </div>
-          </Sider>
+              ) : (
+                <div
+                  className={
+                    siderCollapsed
+                      ? 'main-layout__sider-empty main-layout__sider-empty--collapsed'
+                      : 'main-layout__sider-empty'
+                  }
+                >
+                  <CompassOutlined className="main-layout__sider-empty-icon" aria-hidden />
+                  {!siderCollapsed ? (
+                    <p className="main-layout__sider-empty-text">该应用暂无菜单项</p>
+                  ) : null}
+                </div>
+              )}
+              <div className="main-layout__sider-footer">
+                <Tooltip title={siderCollapsed ? '展开侧栏' : '收起侧栏'} placement="right">
+                  <Button
+                    type="text"
+                    block
+                    className="main-layout__sider-trigger-btn"
+                    icon={siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                    onClick={() => setSiderCollapsed((c) => !c)}
+                  />
+                </Tooltip>
+              </div>
+            </Sider>
+          ) : null}
           <Layout className="main-layout__inner">
             <Content className="main-layout__content main-layout__content--micro">
               {navWarning ? (
